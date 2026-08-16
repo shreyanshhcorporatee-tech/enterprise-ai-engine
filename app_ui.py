@@ -11,38 +11,77 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Enterprise CSS (MNC Grade Styling)
+# Ultra-Clean Modern Corporate Dark CSS (High Visibility & Sleek Design)
 st.markdown("""
     <style>
+    /* Global background and text contrast */
+    .stApp {
+        background-color: #0b0f19;
+        color: #f8fafc;
+    }
+    
+    /* Headers */
     .main-header {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: #0f172a;
-        letter-spacing: -0.03em;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
     }
     .sub-header {
-        font-size: 0.95rem;
-        color: #475569;
-        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        color: #94a3b8;
+        margin-bottom: 2rem;
     }
-    .metric-card {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #111827;
+        border-right: 1px solid #1f2937;
+    }
+    [data-testid="stSidebar"] * {
+        color: #f1f5f9 !important;
+    }
+    
+    /* File Uploader Box Styling */
+    [data-testid="stFileUploader"] {
+        background-color: #111827;
+        border: 1px dashed #374151;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+    
+    /* Metrics Card Styling */
+    div[data-testid="metric-container"] {
+        background-color: #111827;
+        border: 1px solid #1f2937;
         padding: 1rem;
         border-radius: 8px;
-        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
+    div[data-testid="metric-container"] label {
+        color: #94a3b8 !important;
+    }
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+    
+    /* Professional Action Button */
     .stButton>button {
-        background-color: #0f172a;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
         color: white;
-        border-radius: 6px;
-        font-weight: 500;
+        border-radius: 8px;
+        font-weight: 600;
         border: none;
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1.2rem;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #1e293b;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
         color: white;
+        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.5);
     }
     </style>
 """, unsafe_allow_html=True)
