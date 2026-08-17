@@ -21,10 +21,6 @@ app.add_middleware(
 class DataPayload(BaseModel):
     data: str
 
-# Automatically fetch API key from Render environment variables
-api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GEMINI_KEY") or os.environ.get("GOOGLE_API_KEY")
-client = genai.Client(api_key=api_key)
-
 @app.get("/")
 def read_root():
     return {"status": "Enterprise AI Data Cleansing API is Live"}
@@ -32,6 +28,12 @@ def read_root():
 @app.post("/clean-enterprise-data")
 def clean_enterprise_data(payload: DataPayload):
     try:
+        # Fetching the token from environment
+        token = os.environ.get("GEMINI_API_KEY") or os.environ.get("GEMINI_KEY")
+        
+        # Initializing client with explicit token handling for GCP/Vertex tokens
+        client = genai.Client(api_key=token)
+        
         prompt = f"""
         You are an enterprise-grade institutional data cleaning and normalization engine.
         Clean, parse, normalize, and structure the following raw dataset into a clean JSON array of standardized objects.
