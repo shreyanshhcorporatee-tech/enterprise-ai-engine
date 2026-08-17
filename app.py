@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai
 
 app = FastAPI(title="Enterprise AI Engine")
 
@@ -21,8 +21,9 @@ app.add_middleware(
 class DataPayload(BaseModel):
     data: str
 
-# Configure Gemini using environment variable key from Render
-genai.configure(api_key=os.environ.get("GEMINI_KEY"))
+# Automatically fetch API key from Render environment variables
+api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GEMINI_KEY") or os.environ.get("GOOGLE_API_KEY")
+client = genai.Client(api_key=api_key)
 
 @app.get("/")
 def read_root():
@@ -41,9 +42,10 @@ def clean_enterprise_data(payload: DataPayload):
         CRITICAL: Return ONLY a valid JSON array. Do not include any extra text, markdown commentary, or explanations. Just start with '[' and end with ']'.
         """
         
-        # Using the standard stable model
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt,
+        )
         
         cleaned_text = response.text.strip()
         if cleaned_text.startswith("```json"):
