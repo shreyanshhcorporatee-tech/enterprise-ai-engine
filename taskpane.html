@@ -40,8 +40,27 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ data: JSON.stringify(dataValues) })
                     });
-                    let result = await response.json();
-                    document.getElementById('status').innerText = "Data successfully normalized!";
+                    
+                    let result = await response.json(); // Backend se clean data aa gaya
+                    
+                    if (result && result.length > 0) {
+                        // JSON Objects ko 2D Array (Rows & Columns) mein convert karna
+                        let headers = Object.keys(result[0]);
+                        let rows = result.map(obj => Object.values(obj));
+                        let outputData = [headers, ...rows];
+
+                        // Target range select karna aur data paste karna
+                        let startCell = range.getCell(0, 0);
+                        let targetRange = startCell.getResizedRange(outputData.length - 1, outputData[0].length - 1);
+                        
+                        targetRange.values = outputData;
+                        targetRange.format.autofitColumns(); // Columns ko automatically adjust karne ke liye
+
+                        await context.sync(); // Excel ko update command dena
+                        document.getElementById('status').innerText = "Data successfully normalized & pasted!";
+                    } else {
+                        document.getElementById('status').innerText = "AI returned empty data.";
+                    }
                 } catch (error) {
                     document.getElementById('status').innerText = "Error: " + error.message;
                 }
