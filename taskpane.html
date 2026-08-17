@@ -1,38 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise AI Data Engine</title>
     <!-- Office JavaScript API -->
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 15px; background: #0b0f19; color: #fff; }
-        .btn { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600; margin-top: 15px; }
-        .btn:hover { background: #2563eb; }
-        p { color: #94a3b8; font-size: 0.9rem; }
+        /* Minimalist, Elegant, Corporate Aesthetic */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            color: #202124; 
+            margin: 0;
+        }
+        .header-container {
+            border-bottom: 1px solid #dadce0;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a73e8; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        p.description { 
+            color: #5f6368; 
+            font-size: 13px; 
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        .btn { 
+            background: #1a73e8; 
+            color: white; 
+            border: none; 
+            padding: 12px 16px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 13px;
+            font-weight: 600; 
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
+        }
+        .btn:hover { 
+            background: #1557b0; 
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        }
+        .btn:active {
+            background: #174ea6;
+            box-shadow: none;
+        }
+        #status-container {
+            margin-top: 20px;
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            min-height: 20px;
+            display: flex;
+            align-items: center;
+        }
+        #status { 
+            color: #3c4043; 
+            font-size: 12px; 
+            margin: 0;
+            font-weight: 500;
+        }
+        /* Sleek Loading Spinner */
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #1a73e8;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            display: none;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
     </style>
 </head>
 <body>
-    <h3>Enterprise AI Cleansing</h3>
-    <p>Excel ke selected data ko AI se clean aur normalize karein:</p>
-    <button class="btn" onclick="cleanExcelData()">Clean Selected Data</button>
-    <p id="status" style="margin-top: 15px;"></p>
+    <div class="header-container">
+        <h3>AI Data Cleansing</h3>
+    </div>
+    
+    <p class="description">Select the raw dataset in your worksheet, then initialize the AI engine to structure, clean, and normalize the data.</p>
+    
+    <button class="btn" onclick="cleanExcelData()">
+        Execute Normalization
+    </button>
+    
+    <div id="status-container">
+        <div id="loading-spinner" class="loader"></div>
+        <span id="status">System standing by.</span>
+    </div>
 
     <script>
         Office.onReady((info) => {
             if (info.host === Office.HostType.Excel) {
-                document.getElementById('status').innerText = "Add-in connected to Excel.";
+                document.getElementById('status').innerText = "Engine connected and ready.";
             }
         });
 
         async function cleanExcelData() {
+            const statusEl = document.getElementById('status');
+            const spinner = document.getElementById('loading-spinner');
+            
             await Excel.run(async (context) => {
                 let range = context.workbook.getSelectedRange();
                 range.load("values");
                 await context.sync();
 
                 let dataValues = range.values;
-                document.getElementById('status').innerText = "Processing data with AI...";
+                
+                // UI Update for processing
+                statusEl.innerText = "Processing institutional data...";
+                statusEl.style.color = "#d93025"; 
+                spinner.style.display = "block";
 
                 try {
                     let response = await fetch("https://enterprise-ai-engine.onrender.com/clean-enterprise-data", {
@@ -41,28 +135,34 @@
                         body: JSON.stringify({ data: JSON.stringify(dataValues) })
                     });
                     
-                    let result = await response.json(); // Backend se clean data aa gaya
+                    let result = await response.json(); 
                     
                     if (result && result.length > 0) {
-                        // JSON Objects ko 2D Array (Rows & Columns) mein convert karna
                         let headers = Object.keys(result[0]);
                         let rows = result.map(obj => Object.values(obj));
                         let outputData = [headers, ...rows];
 
-                        // Target range select karna aur data paste karna
                         let startCell = range.getCell(0, 0);
                         let targetRange = startCell.getResizedRange(outputData.length - 1, outputData[0].length - 1);
                         
                         targetRange.values = outputData;
-                        targetRange.format.autofitColumns(); // Columns ko automatically adjust karne ke liye
+                        targetRange.format.autofitColumns(); 
 
-                        await context.sync(); // Excel ko update command dena
-                        document.getElementById('status').innerText = "Data successfully normalized & pasted!";
+                        await context.sync(); 
+                        
+                        // UI Update for success
+                        spinner.style.display = "none";
+                        statusEl.style.color = "#188038"; 
+                        statusEl.innerText = "Data successfully normalized & pasted.";
                     } else {
-                        document.getElementById('status').innerText = "AI returned empty data.";
+                        spinner.style.display = "none";
+                        statusEl.style.color = "#d93025";
+                        statusEl.innerText = "AI returned empty data.";
                     }
                 } catch (error) {
-                    document.getElementById('status').innerText = "Error: " + error.message;
+                    spinner.style.display = "none";
+                    statusEl.style.color = "#d93025";
+                    statusEl.innerText = "System Error: " + error.message;
                 }
             });
         }
