@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # ⚡ Enterprise AI Data Pipeline & Cleansing Engine
 
 A production-ready, cloud-deployed enterprise data cleansing and semantic normalization platform designed to ingest messy cross-functional datasets and output structured, institutional-grade Excel reports.
@@ -33,3 +34,21 @@ If you want to run this project locally on your machine, follow these steps:
    ```bash
    git clone [https://github.com/shreyanshhncorporatee-tech/repo.git](https://github.com/shreyanshhncorporatee-tech/repo.git)
    cd repo
+=======
+# ⚡ Enterprise AI Data Pipeline
+
+A cloud-deployed enterprise data cleansing and normalization platform that transforms unstructured cross-functional datasets into structured Excel reports.
+
+## 🚀 Live Demo
+[View Live Application](https://your-streamlit-app-url.streamlit.app)
+
+## 🛠️ Tech Stack
+* **Backend:** FastAPI, Python, Pandas, Google Gemini API
+* **Frontend:** Streamlit Cloud
+* **Hosting:** Render Cloud
+
+## ✨ Key Features
+* **Multi-Domain Support:** Parses Finance, CRM, HR, and IT logs.
+* **Massive Scale Batching:** Optimized 1,000-row chunking to handle heavy datasets without timeouts.
+* **Instant Export:** One-click structured Excel (`.xlsx`) generation.
+>>>>>>> Stashed changes

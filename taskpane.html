@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Enterprise AI Data Engine</title>
+    <!-- Office JavaScript API -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 15px; background: #0b0f19; color: #fff; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600; margin-top: 15px; }
+        .btn:hover { background: #2563eb; }
+        p { color: #94a3b8; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <h3>Enterprise AI Cleansing</h3>
+    <p>Excel ke selected data ko AI se clean aur normalize karein:</p>
+    <button class="btn" onclick="cleanExcelData()">Clean Selected Data</button>
+    <p id="status" style="margin-top: 15px;"></p>
+
+    <script>
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Excel) {
+                document.getElementById('status').innerText = "Add-in connected to Excel.";
+            }
+        });
+
+        async function cleanExcelData() {
+            await Excel.run(async (context) => {
+                let range = context.workbook.getSelectedRange();
+                range.load("values");
+                await context.sync();
+
+                let dataValues = range.values;
+                document.getElementById('status').innerText = "Processing data with AI...";
+
+                try {
+                    let response = await fetch("https://enterprise-ai-engine.onrender.com/clean-enterprise-data", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ data: JSON.stringify(dataValues) })
+                    });
+                    let result = await response.json();
+                    document.getElementById('status').innerText = "Data successfully normalized!";
+                } catch (error) {
+                    document.getElementById('status').innerText = "Error: " + error.message;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
