@@ -1,5 +1,6 @@
 import os
 import io
+import json
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,7 +23,7 @@ app.add_middleware(
 class DataPayload(BaseModel):
     data: str
 
-# Gemini Client Initialization
+# Gemini Client Initialization (Make sure GEMINI_API_KEY environment variable is set on Render)
 client = genai.Client()
 
 @app.get("/")
@@ -34,29 +35,37 @@ def clean_enterprise_data(payload: DataPayload):
     try:
         prompt = f"""
         You are an enterprise-grade institutional data cleaning and normalization engine.
-        Clean, parse, normalize, and structure the following raw dataset into a clean JSON array of standardized objects:
+        Your task is to take the following raw messy table data from Excel, clean names, standardize PAN numbers, format numbers/amounts properly, fix cities, and return a clean JSON array of objects.
         
         Raw Data:
         {payload.data}
         
-        Return ONLY valid JSON format.
+        CRITICAL: Return ONLY a valid JSON array. Do not include any extra text, markdown commentary, or explanations. Just start with '[' and end with ']'.
         """
         
+        # Using the standard stable model endpoint
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.6-flash",
             contents=prompt,
         )
         
         cleaned_text = response.text.strip()
-        # Remove code markdown formatting if present
+        
+        # Clean up any potential markdown code blocks
         if cleaned_text.startswith("```json"):
             cleaned_text = cleaned_text[7:]
-        if cleaned_text.startswith("```"):
+        elif cleaned_text.startswith("```"):
             cleaned_text = cleaned_text[3:]
+        
         if cleaned_text.endswith("```"):
             cleaned_text = cleaned_text[:-3]
             
-        return pd.read_json(io.StringIO(cleaned_text.strip())).to_dict(orient="records")
+        cleaned_text = cleaned_text.strip()
+        
+        # Parse JSON directly to ensure it's valid before sending back to Excel
+        parsed_data = json.loads(cleaned_text)
+        return parsed_data
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
